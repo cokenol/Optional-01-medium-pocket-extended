@@ -23,6 +23,12 @@ class PostsController
     paragraphs = doc.search("#article-body p")
     content = paragraphs.map(&:text).join("\n\n")
     author = doc.search(".crayons-article__subheader a").text.strip
+    author_path = doc.search('.crayons-article__header__meta a.crayons-link')[0]["href"]
+    # author_doc = Nokogiri::HTML(URI.open("#{BASE_URL}#{author_path}").read)
+    author_doc = Nokogiri::HTML(File.open("./aspittel.html")) #to test
+    nickname = author_path.scan(/\w+/)
+    description = author_doc.search('.profile_header__details p').first.text.strip
+    binding.pry
     post = Post.new(path: path, title: title, content: content, author: Author.new({ author: author }))
     @repo.add(post)
     list
@@ -38,7 +44,14 @@ class PostsController
   def mark_as_read
     list
     index = @view.ask_user_for_index
-    @repo.mark_as_read(index)
+    @repo.delete(index)
+    list
+  end
+
+  def destroy
+    list
+    index = @view.ask_user_for_index
+    @repo.destroy(index)
     list
   end
 
@@ -49,3 +62,8 @@ class PostsController
     @view.display(posts)
   end
 end
+
+
+author_doc = Nokogiri::HTML(File.open("./aspittel.html")) #to test
+description = author_doc.search('.profile-header__details p').first.text.strip
+p description
