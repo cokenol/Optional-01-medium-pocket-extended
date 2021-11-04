@@ -66,4 +66,9 @@ end
 
 author_doc = Nokogiri::HTML(File.open("./aspittel.html")) #to test
 description = author_doc.search('.profile-header__details p').first.text.strip
+posts_published = author_doc.search('.crayons-story__title a')[0].text.strip
+comments_written = author_doc.search('.profile-comment-row p.color-base-80').first.text.strip
+
 p description
+p posts_published
+p comments_written
