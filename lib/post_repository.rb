@@ -8,9 +8,8 @@ class PostRepository
     @posts = []
     @csv_file = csv_file
     @next_id = 1
-    @authors_repo = AuthorRepository.new('authors.csv')
+    @authors_repo = AuthorRepository.new('lib/authors.csv')
     load_csv if File.exist?(@csv_file)
-    # save
   end
 
   def all
@@ -34,7 +33,13 @@ class PostRepository
   end
 
   def destroy(index)
+    # binding.pry
     @posts.delete_at(index)
+    save
+  end
+
+  def get_posts_by_author(author_id)
+    @posts.select { |a| a.author_id == author_id }
   end
 
   private
@@ -43,23 +48,22 @@ class PostRepository
     csv_options = { headers: :first_row, header_converters: :symbol }
     CSV.foreach(@csv_file, csv_options) do |row|
       # binding.pry
-      @posts << Post.new(
-        path: row[0], title: row[1], content: row[2],
-        author: row[3], read: row[4] == 'true', id: row[5].to_i,
-        author_id: row[6].to_i
-      )
+      @posts << Post.new({ path: row[0], title: row[1], content: row[2],
+                           author: @authors_repo.find(row[6].to_i), read: row[4] == 'true', id: row[5].to_i,
+                           author_id: row[6].to_i })
     end
-    # binding.pry
     @next_id = @posts.empty? ? 1 : @posts.last.id + 1
+    # binding.pry
     @posts
   end
 
   def save
-    csv_options = { col_sep: ',', headers: true }
+    csv_options = { col_sep: ',', headers: :first_row }
     CSV.open(@csv_file, 'wb', csv_options) do |csv|
-      csv << %w[path title content author read id]
+      csv << %w[path title content author read id author_id]
       @posts.each do |pt|
-        csv << [pt.path, pt.title, pt.content, pt.author, pt.read?, pt.id, pt.author_id]
+        # binding.pry
+        csv << [pt.path, pt.title, pt.content, pt.author.name, pt.read?, pt.id, pt.author_id]
       end
     end
   end

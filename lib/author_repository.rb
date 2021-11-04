@@ -10,8 +10,8 @@ class AuthorRepository
     load_csv if File.exist?(@csv_file)
     # save
   end
-
   def all
+#
     @authors
   end
 
@@ -30,9 +30,8 @@ class AuthorRepository
     @authors.find { |a| a.id == id }
   end
 
-  def mark_as_read(index)
-    @authors[index].mark_as_read!
-    save
+  def get_author_id(index)
+    find_by_index(index).id
   end
 
   private
@@ -41,13 +40,11 @@ class AuthorRepository
     csv_options = { headers: :first_row, header_converters: :symbol }
     CSV.foreach(@csv_file, csv_options) do |row|
       # binding.pry
-      @authors << Author.new(
-        id: row[0].to_i, nickname: row[1], name: row[2],
-        description: row[3], posts: row[4], comments_written: row[5]
-      )
+      @authors << Author.new({ id: row[0].to_i, nickname: row[1], name: row[2],
+        description: row[3], posts: row[4], comments_written: row[5] })
     end
-    # binding.pry
     @next_id = @authors.empty? ? 1 : @authors.last.id + 1
+    # binding.pry
     @authors
   end
 

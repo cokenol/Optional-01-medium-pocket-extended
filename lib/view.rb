@@ -1,8 +1,11 @@
+require 'pry-byebug'
+
 class View
   def display(posts)
     posts.each_with_index do |post, index|
       status = post.read? ? "[x]" : "[ ]"
-      puts "#{index + 1}. #{status} - #{post.title} (#{post.author})"
+      # binding.pry
+      puts "#{index + 1}. #{status} - #{post.title} (#{post.author.name})"
     end
   end
 
@@ -20,5 +23,11 @@ class View
 
   def display_content(post)
     puts post # calls `post.to_s`!
+  end
+
+  def display_authors(authors)
+    authors.each_with_index do |a, index|
+      puts "#{index + 1}. #{a.name}"
+    end
   end
 end
